@@ -63,23 +63,31 @@ fun LoginStatefull(
     fun validate() {
         scope.launch {
             if (isPageAdmin) {
-                // Vérification des éléments
-                var response =
-                    ApiClient.create(context).loginAdmin(LoginAdminRequest(code, email, password))
+                try {
+                    // Vérification des éléments
+                    var response =
+                        ApiClient.create(context).loginAdmin(LoginAdminRequest(code, email, password))
 
-                if(response.isSuccessful){
-                    // On sauvegarde le token
-                    val body = response.body()
-                    if(body != null){
-                        TokenManager.save(context, body.access_token)
-                        errorMessage = ""
-                        // On affiche la page suivante
-                        LoginSucces = true;
+                    if(response.isSuccessful){
+                        // On sauvegarde le token
+                        val body = response.body()
+                        if(body != null){
+                            TokenManager.save(context, body.access_token)
+                            errorMessage = ""
+                            // On affiche la page suivante
+                            LoginSucces = true;
+                        }
                     }
-                }
-                else{
-                    // Erreur dans la réponse et afficher un dialogue
-                    errorMessage = "Informations incorrecte"
+                    else{
+                        // Erreur dans la réponse et afficher un dialogue
+                        errorMessage = "Informations incorrecte"
+                    }
+                } catch (e: java.net.ConnectException) {
+                    errorMessage = "Impossible de joindre le serveur"
+                } catch (e: java.net.SocketTimeoutException) {
+                    errorMessage = "Le serveur ne répond pas"
+                } catch (e: Exception) {
+                    errorMessage = "Erreur : ${e.message}"
                 }
             } else {
                 // Vérifiction des éléments
