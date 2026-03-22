@@ -1,4 +1,4 @@
-package com.okino813.cellarium.page.Admin
+package com.okino813.cellarium.page.User
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,11 +20,17 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import com.okino813.cellarium.ApiLaravel.Admin.Item
 import com.okino813.cellarium.R
+import com.okino813.cellarium.page.Admin.ContenantAdmin
+import com.okino813.cellarium.page.Admin.HomeAdmin
+import com.okino813.cellarium.page.Admin.ItemAdmin
+import com.okino813.cellarium.page.Admin.MovementAdmin
+import com.okino813.cellarium.page.Admin.SourceAdmin
 import com.okino813.cellarium.ui.theme.CellariumTheme
 
-
+@PreviewScreenSizes
 @Composable
-fun AppAdmin() {
+fun AppUser(
+) {
     var currentDestinationAdmin by rememberSaveable { mutableStateOf(AppDestinationsAdmin.HOME) }
 
     NavigationSuiteScaffold(
@@ -51,7 +57,9 @@ fun AppAdmin() {
             AppDestinationsAdmin.ITEM -> ItemAdmin()
             AppDestinationsAdmin.CONTENANT -> ContenantAdmin()
             AppDestinationsAdmin.SOURCE -> SourceAdmin()
-            else -> {HomeAdmin()}
+            else -> {
+                HomeAdmin()
+            }
         }
     }
 }

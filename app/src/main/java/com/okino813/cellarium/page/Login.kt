@@ -72,7 +72,7 @@ fun LoginStatefull(
                         // On sauvegarde le token
                         val body = response.body()
                         if(body != null){
-                            TokenManager.save(context, body.access_token)
+                            TokenManager.saveAdmin(context, body.access_token)
                             errorMessage = ""
                             // On affiche la page suivante
                             LoginSucces = true;

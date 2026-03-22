@@ -7,7 +7,8 @@ import androidx.security.crypto.MasterKey
 
 object TokenManager {
     private const val PREFS_NAME = "secure_prefs"
-    private const val KEY_TOKEN = "jwt_token"
+    private const val KEY_ADMIN_TOKEN = "jwt_admin_token"
+    private const val KEY_USER_TOKEN = "jwt_user_token"
 
     private fun getPrefs(context: Context): SharedPreferences {
         val masterKey = MasterKey.Builder(context)
@@ -20,12 +21,21 @@ object TokenManager {
         )
     }
 
-    fun save(context: Context, token: String) =
-        getPrefs(context).edit().putString(KEY_TOKEN, token).apply()
+    fun saveAdmin(context: Context, token: String) =
+        getPrefs(context).edit().putString(KEY_ADMIN_TOKEN, token).apply()
 
-    fun get(context: Context): String? =
-        getPrefs(context).getString(KEY_TOKEN, null)
+    fun getAdmin(context: Context): String? =
+        getPrefs(context).getString(KEY_ADMIN_TOKEN, null)
 
-    fun clear(context: Context) =
-        getPrefs(context).edit().remove(KEY_TOKEN).apply()
+    fun saveUser(context: Context, token: String) =
+        getPrefs(context).edit().putString(KEY_USER_TOKEN, token).apply()
+
+    fun getUser(context: Context): String? =
+        getPrefs(context).getString(KEY_USER_TOKEN, null)
+
+    fun clearAdmin(context: Context) =
+        getPrefs(context).edit().remove(KEY_ADMIN_TOKEN).apply()
+
+    fun clearUser(context: Context) =
+        getPrefs(context).edit().remove(KEY_USER_TOKEN).apply()
 }

@@ -1,5 +1,6 @@
 package com.okino813.cellarium.page.Admin
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
+import com.okino813.cellarium.ApiLaravel.Admin.ApiAdmin
+import com.okino813.cellarium.ApiLaravel.Admin.Item
+import com.okino813.cellarium.ApiLaravel.Admin.Value
+import com.okino813.cellarium.ApiLaravel.ApiClient
+import com.okino813.cellarium.ApiLaravel.LoginAdminRequest
 
 data class Stats(
     val nbr :Int,
@@ -33,17 +39,13 @@ fun HomeAdmin(
     modifier: Modifier = Modifier
 ){
 
-    var nbr_item by remember { mutableStateOf(85) }
-    var nbr_rupture by remember { mutableStateOf(2) }
-    var nbr_mouvement by remember { mutableStateOf(5) }
-
     // Liste des stats
     val dataList = listOf(
-        Stats(nbr_item, "Items"),
-        Stats(nbr_rupture, "Ruptures"),
-        Stats(nbr_mouvement, "Mouvements"),
+        Stats(Value.items.size, "Items"),
+        Stats(Value.contains.size, "Contenants"),
+        Stats(Value.nbr_ruptures, "Ruptures"),
+        Stats(5, "Mouvements"),
     )
-    val listState = rememberLazyListState()
 
     HomeAdminStateless(
         modifier = modifier,
@@ -61,6 +63,7 @@ fun HomeAdminStateless(
             modifier = modifier.padding(innerPadding)
         )
         {
+//            BandeauTop()
             Column(
                 modifier = modifier.padding(start = 16.dp),
             ){
