@@ -24,7 +24,10 @@ import com.okino813.cellarium.ui.theme.CellariumTheme
 
 
 @Composable
-fun AppAdmin() {
+fun AppAdmin(
+    onLogOut: () -> Unit,
+    onChangeMode: () -> Unit
+) {
     var currentDestinationAdmin by rememberSaveable { mutableStateOf(AppDestinationsAdmin.HOME) }
 
     NavigationSuiteScaffold(
@@ -46,12 +49,18 @@ fun AppAdmin() {
         }
     ) {
         when(currentDestinationAdmin){
-            AppDestinationsAdmin.HOME -> HomeAdmin()
+            AppDestinationsAdmin.HOME -> HomeAdmin(
+                onLogOut = onLogOut,
+                onChangeMode = onChangeMode
+            )
             AppDestinationsAdmin.MOUVEMENT -> MovementAdmin()
             AppDestinationsAdmin.ITEM -> ItemAdmin()
             AppDestinationsAdmin.CONTENANT -> ContenantAdmin()
             AppDestinationsAdmin.SOURCE -> SourceAdmin()
-            else -> {HomeAdmin()}
+            else -> {HomeAdmin(
+                onLogOut = onLogOut,
+                onChangeMode = onChangeMode
+            )}
         }
     }
 }

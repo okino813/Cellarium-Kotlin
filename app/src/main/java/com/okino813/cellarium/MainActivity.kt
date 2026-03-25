@@ -2,6 +2,7 @@ package com.okino813.cellarium
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.okino813.cellarium.ApiLaravel.Admin.ApiAdmin
 import com.okino813.cellarium.ApiLaravel.Admin.Value
+import com.okino813.cellarium.ApiLaravel.TokenManager
 import com.okino813.cellarium.page.Admin.AppAdmin
 import com.okino813.cellarium.page.LoginStatefull
 import com.okino813.cellarium.page.User.AppUser
@@ -30,6 +32,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
             val context = LocalContext.current
             val sharedPref = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
@@ -39,12 +42,33 @@ class MainActivity : ComponentActivity() {
             var isConnectedUser by remember {
                 mutableStateOf(sharedPref.getBoolean("isConnectedUser", false))
             }
+
+            var mode by remember {
+                mutableStateOf(sharedPref.getString("mode", "user"))
+            }
+
             var isLoading by remember { mutableStateOf(false) }
             var errorMessage by remember { mutableStateOf("") }
 
+            fun LogOutAdmin(){
+                sharedPref.edit().putBoolean("isConnectedAdmin", false).apply()
+                TokenManager.clearAdmin(context)
+                isConnectedAdmin = false
+            }
+
+            fun ChangeMode(){
+                if(mode == "admin"){
+                    mode = "user"
+                }
+                else{
+                    mode = "admin"
+                }
+                sharedPref.edit().putString("mode", mode).apply()
+            }
+
             // 👇 Se relance quand isConnectedAdmin ou isConnectedUser change
             LaunchedEffect(isConnectedAdmin, isConnectedUser) {
-                if (isConnectedAdmin) {
+                if (isConnectedAdmin && mode == "admin") {
                     isLoading = true
                     try {
                         ApiAdmin.getInfo(context)
@@ -55,7 +79,7 @@ class MainActivity : ComponentActivity() {
                         isLoading = false
                     }
                 }
-                if (isConnectedUser) {
+                if (isConnectedUser && mode == "user") {
                     isLoading = true
                     try {
                         // ApiUser.getData(context)
@@ -72,13 +96,53 @@ class MainActivity : ComponentActivity() {
                     !isConnectedAdmin && !isConnectedUser -> {
                         LoginStatefull(
                             context = context,
+                            specifiMode = false,
                             onLoginAdminSuccess = {
                                 sharedPref.edit().putBoolean("isConnectedAdmin", true).apply()
+                                sharedPref.edit().putString("mode", "admin").apply()
+                                mode = "admin"
+                                isConnectedAdmin = true
+                                Log.d("Connexion", "La valeur du mode : $mode\n et la valeur du isConnectedAdmin : $isConnectedAdmin")
+                            },
+                            onLoginUserSuccess = {
+                                sharedPref.edit().putBoolean("isConnectedUser", true).apply()
+                                sharedPref.edit().putString("mode", "user").apply()
+                                mode = "user"
+                                isConnectedUser = true
+                            },
+                            onChangeLogin = {
+                                if(mode == "admin"){
+                                    sharedPref.edit().putString("mode", "user").apply()
+                                    mode = "user"
+                                }else{
+                                    sharedPref.edit().putString("mode", "admin").apply()
+                                    mode = "admin"
+                                }
+                            }
+                        )
+                    }
+                    (mode == "user" && !isConnectedUser) || (mode == "admin" && !isConnectedAdmin) ->{
+                        LoginStatefull(
+                            context = context,
+                            specifiMode = if (mode == "admin")true else false,
+                            onLoginAdminSuccess = {
+                                sharedPref.edit().putBoolean("isConnectedAdmin", true).apply()
+                                sharedPref.edit().putString("mode", "admin").apply()
+                                mode = "admin"
                                 isConnectedAdmin = true
                             },
                             onLoginUserSuccess = {
                                 sharedPref.edit().putBoolean("isConnectedUser", true).apply()
                                 isConnectedUser = true
+                            },
+                            onChangeLogin = {
+                                if(mode == "admin"){
+                                    sharedPref.edit().putString("mode", "user").apply()
+                                    mode = "user"
+                                }else{
+                                    sharedPref.edit().putString("mode", "admin").apply()
+                                    mode = "admin"
+                                }
                             }
                         )
                     }
@@ -98,8 +162,11 @@ class MainActivity : ComponentActivity() {
                             Text(errorMessage, color = Color.Red)
                         }
                     }
-                    isConnectedAdmin -> AppAdmin()
-                    isConnectedUser -> AppUser()
+                    isConnectedAdmin && mode == "admin" -> AppAdmin(onLogOut = {LogOutAdmin()}, onChangeMode = {ChangeMode()})
+                    isConnectedUser && mode == "user" -> AppUser(
+                        onLogout = {},
+                        onChangeMode = {}
+                    )
                     else -> {}
                 }
             }

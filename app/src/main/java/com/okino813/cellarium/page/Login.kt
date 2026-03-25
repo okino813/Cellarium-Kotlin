@@ -1,6 +1,7 @@
 package com.okino813.cellarium.page
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,8 @@ fun LoginStatefull(
     context: Context,
     onLoginAdminSuccess: () -> Unit,
     onLoginUserSuccess: () -> Unit,
+    onChangeLogin: () -> Unit,
+    specifiMode: Boolean
 ){
 
     val scope = rememberCoroutineScope()
@@ -47,11 +50,12 @@ fun LoginStatefull(
 
     var errorMessage by remember { mutableStateOf("") }
 
-    var isPageAdmin by remember { mutableStateOf(false) }
+    var isPageAdmin by remember { mutableStateOf(specifiMode) }
 
     var LoginSucces by remember { mutableStateOf(false) }
 
     if(LoginSucces){
+        Log.d("Connexion" , "$isPageAdmin")
         if(isPageAdmin){
             onLoginAdminSuccess()
         }
@@ -62,6 +66,7 @@ fun LoginStatefull(
 
     fun validate() {
         scope.launch {
+            Log.d("Connexion" , "$isPageAdmin")
             if (isPageAdmin) {
                 try {
                     // Vérification des éléments
@@ -102,7 +107,10 @@ fun LoginStatefull(
         onCodeChange = {code = it},
         validate = {validate()},
         isPageAdmin = isPageAdmin,
-        pageChange = { isPageAdmin = !isPageAdmin},
+        pageChange = {
+            isPageAdmin = !isPageAdmin
+            onChangeLogin()
+         },
         email = email,
         password = password,
         onEmailChange = { email = it},

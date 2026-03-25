@@ -36,7 +36,9 @@ data class Stats(
 )
 @Composable
 fun HomeAdmin(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLogOut: () -> Unit,
+    onChangeMode: () -> Unit
 ){
 
     // Liste des stats
@@ -49,23 +51,32 @@ fun HomeAdmin(
 
     HomeAdminStateless(
         modifier = modifier,
-        listStats = dataList
+        listStats = dataList,
+        onLogOut = onLogOut,
+        onChangeMode = onChangeMode
     )
 }
 
 @Composable
 fun HomeAdminStateless(
     modifier: Modifier,
-    listStats: List<Stats>
+    listStats: List<Stats>,
+    onLogOut: () -> Unit,
+    onChangeMode: () -> Unit
 ){
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        Box(
+        Column(
             modifier = modifier.padding(innerPadding)
         )
         {
-//            BandeauTop()
+            BandeauTop(
+                modifier = modifier,
+                onLogOut = onLogOut,
+                onChangeMode = onChangeMode
+            )
+
             Column(
-                modifier = modifier.padding(start = 16.dp),
+                modifier = modifier.padding(start = 16.dp, top = 10.dp),
             ){
                 TitreH1(
                     "Statistiques",

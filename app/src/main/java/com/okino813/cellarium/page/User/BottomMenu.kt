@@ -27,9 +27,10 @@ import com.okino813.cellarium.page.Admin.MovementAdmin
 import com.okino813.cellarium.page.Admin.SourceAdmin
 import com.okino813.cellarium.ui.theme.CellariumTheme
 
-@PreviewScreenSizes
 @Composable
 fun AppUser(
+    onLogout : () -> Unit,
+    onChangeMode: () -> Unit
 ) {
     var currentDestinationAdmin by rememberSaveable { mutableStateOf(AppDestinationsAdmin.HOME) }
 
@@ -52,13 +53,19 @@ fun AppUser(
         }
     ) {
         when(currentDestinationAdmin){
-            AppDestinationsAdmin.HOME -> HomeAdmin()
+            AppDestinationsAdmin.HOME -> HomeAdmin(
+                onLogOut = onLogout,
+                onChangeMode = onChangeMode
+            )
             AppDestinationsAdmin.MOUVEMENT -> MovementAdmin()
             AppDestinationsAdmin.ITEM -> ItemAdmin()
             AppDestinationsAdmin.CONTENANT -> ContenantAdmin()
             AppDestinationsAdmin.SOURCE -> SourceAdmin()
             else -> {
-                HomeAdmin()
+                HomeAdmin(
+                    onLogOut = onLogout,
+                    onChangeMode = onChangeMode
+                )
             }
         }
     }
