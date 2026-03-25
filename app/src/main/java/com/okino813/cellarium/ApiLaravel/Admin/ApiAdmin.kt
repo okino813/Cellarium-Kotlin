@@ -9,6 +9,7 @@ object ApiAdmin {
     suspend fun getInfo(context: Context) {
         getItems(context)
         getContains(context)
+        getMovements(context)
     }
 
     suspend fun getStats(context: Context): Response<StatsResponse> {
@@ -74,4 +75,37 @@ object ApiAdmin {
             Log.e("Contains", response.body().toString())
         }
     }
+
+    suspend fun getMovements(context: Context) {
+        val response = ApiClient.create(context).getMovements()
+        if (response.isSuccessful) {
+            response.body()?.let { movements ->
+                Log.d("Movements", movements.toString())
+                Value.movements.clear()
+                Value.movements.addAll(
+                    movements.map { movement ->
+                        Movements(
+                            id = movement.id,
+                            firstname = movement.firstname,
+                            comment = movement.comment,
+                            items = movement.items.map {
+                                Items(
+                                    id = it.id,
+                                    name = it.name,
+                                    total_qty = it.total_qty,
+                                    state = it.state == 1,
+                                    is_stock = it.is_stock == 1,
+                                    operation = it.operation,
+                                )
+                            }
+                        )
+                    }
+                )
+            }
+        }else{
+            Log.e("Movements", response.body().toString())
+        }
+    }
+
+
 }

@@ -42,10 +42,33 @@ data class Sourcing(
     val firestationId: Int
 )
 
+/* --------------------------------------- */
+/* Data class des movements et ses items associés */
+
+@Immutable
+data class Movements(
+    val id: Int,
+    val firstname: String,
+    val comment: String?,
+    val items: List<Items>
+)
+
+@Immutable
+data class Items(
+    val id: Int,
+    val name: String,
+    val total_qty: Int,
+    val state: Boolean,
+    val is_stock: Boolean,
+    val operation : Int,
+)
+
 object Value {
     val items = mutableStateListOf<Item>()
 
     var contains = mutableStateListOf<Contains>()
-    var nbr_items by mutableStateOf(0)      // 👈 réactif
-    var nbr_ruptures by mutableStateOf(0)   // 👈 réactif
+
+    var movements = mutableStateListOf<Movements>()
+    var nbr_items by mutableStateOf(0)
+    var nbr_ruptures by mutableStateOf(0)
 }

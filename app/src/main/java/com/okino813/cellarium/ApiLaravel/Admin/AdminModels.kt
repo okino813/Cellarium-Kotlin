@@ -35,7 +35,7 @@ data class PivotContaining(
 )
 
 
-/* La classe du getContain */
+/* La class du getContain */
 // Contient simplement la liste des contenants
 data class ContainResponse(
     val id: Int,
@@ -47,4 +47,22 @@ data class SourcingResponse(
     val id: Int,
     val name: String,
     val firestation_id: Int
+)
+
+/* La class du Movements */
+// Contient les mouvements et les Item associé
+data class MovementResponse(
+    val id: Int,
+    val firstname: String,
+    val comment: String?,
+    val items: List<ItemsResponse>
+)
+
+data class ItemsResponse(
+    val id: Int,
+    val name: String,
+    val total_qty: Int,
+    val state: Int,
+    val is_stock: Int,
+    val operation : Int,
 )

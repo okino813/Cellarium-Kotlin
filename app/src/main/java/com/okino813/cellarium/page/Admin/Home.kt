@@ -42,9 +42,9 @@ fun HomeAdmin(
     // Liste des stats
     val dataList = listOf(
         Stats(Value.items.size, "Items"),
-        Stats(Value.contains.size, "Contenants"),
+        Stats(Value.movements.size, "Mouvements"),
         Stats(Value.nbr_ruptures, "Ruptures"),
-        Stats(5, "Mouvements"),
+        Stats(Value.contains.size, "Contenants"),
     )
 
     HomeAdminStateless(

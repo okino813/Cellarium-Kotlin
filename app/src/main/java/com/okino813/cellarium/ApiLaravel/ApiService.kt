@@ -3,6 +3,7 @@ package com.okino813.cellarium.ApiLaravel
 import com.okino813.cellarium.ApiLaravel.Admin.AdminAllInfoResponse
 import com.okino813.cellarium.ApiLaravel.Admin.ContainResponse
 import com.okino813.cellarium.ApiLaravel.Admin.ItemResponse
+import com.okino813.cellarium.ApiLaravel.Admin.MovementResponse
 import com.okino813.cellarium.ApiLaravel.Admin.StatsResponse
 import com.okino813.cellarium.ApiLaravel.User.UserInfoResponse
 import retrofit2.Response
@@ -33,6 +34,9 @@ interface ApiService {
 
     @GET("admin/contains")
     suspend fun getContains(): Response<List<ContainResponse>>
+
+    @GET("admin/movements")
+    suspend fun getMovements(): Response<List<MovementResponse>>
 
     @GET("admin/stats")
     suspend fun getStats(): Response<StatsResponse>

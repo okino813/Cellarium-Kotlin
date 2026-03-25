@@ -11,7 +11,13 @@ import okhttp3.Route
 class TokenAuthenticator(private val context: Context) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
         // Évite une boucle infinie si le refresh échoue aussi
-        if (response.request.url.encodedPath.contains("refresh")) return null
+        Log.d("TokenAuthenticator", "401 reçu sur : ${response.request.url}")
+        Log.d("TokenAuthenticator", "adminToken présent : ${TokenManager.getAdmin(context) != null}")
+
+        if (response.request.url.encodedPath.contains("refresh")) {
+            Log.e("TokenAuthenticator", "Refresh lui-même a échoué — abandon")
+            return null
+        }
 
         // Détermine quel token utiliser (admin ou user)
         val adminToken = TokenManager.getAdmin(context)
@@ -21,10 +27,14 @@ class TokenAuthenticator(private val context: Context) : Authenticator {
             try {
                 when {
                     adminToken != null -> {
+                        Log.d("TokenAuthenticator", "Tentative refresh admin avec token : ${adminToken.take(20)}...")
                         // Refresh du token admin
                         val refreshResponse = ApiClient
                             .createForRefresh(context, adminToken)
                             .refreshAdmin()
+
+                        Log.d("TokenAuthenticator", "Refresh response code : ${refreshResponse.code()}")
+                        Log.d("TokenAuthenticator", "Refresh response body : ${refreshResponse.errorBody()?.string()}")
 
                         if (refreshResponse.isSuccessful) {
                             val token = refreshResponse.body()?.access_token
