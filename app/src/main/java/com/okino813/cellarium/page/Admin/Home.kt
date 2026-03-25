@@ -123,7 +123,6 @@ fun HomeAdminStateless(
                 )
                 LazyColumn{
                     items(Value.items) { item ->
-                        // Rajouter la condition "is stock"
                         if((item.total_qty <= item.seuil) && item.is_stock) {
                             ElevatedCard(
                                 elevation = CardDefaults.cardElevation(

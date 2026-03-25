@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import com.okino813.cellarium.ApiLaravel.ApiClient
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 object ApiAdmin {
     suspend fun getInfo(context: Context) {
@@ -76,6 +78,16 @@ object ApiAdmin {
         }
     }
 
+    fun formatDate(isoDate: String): String {
+        return try {
+            val input = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'", Locale.getDefault())
+            val output = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            output.format(input.parse(isoDate)!!)
+        } catch (e: Exception) {
+            isoDate  // retourne la string brute si ça échoue
+        }
+    }
+
     suspend fun getMovements(context: Context) {
         val response = ApiClient.create(context).getMovements()
         if (response.isSuccessful) {
@@ -88,6 +100,7 @@ object ApiAdmin {
                             id = movement.id,
                             firstname = movement.firstname,
                             comment = movement.comment,
+                            date = formatDate(movement.created_at),
                             items = movement.items.map {
                                 Items(
                                     id = it.id,
@@ -95,7 +108,7 @@ object ApiAdmin {
                                     total_qty = it.total_qty,
                                     state = it.state == 1,
                                     is_stock = it.is_stock == 1,
-                                    operation = it.operation,
+                                    operation = it.pivot.operation,
                                 )
                             }
                         )

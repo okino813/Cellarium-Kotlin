@@ -1,5 +1,7 @@
 package com.okino813.cellarium.ApiLaravel.Admin
 
+import java.util.Date
+
 data class AdminAllInfoResponse(
     val items: List<String>
 )
@@ -55,6 +57,7 @@ data class MovementResponse(
     val id: Int,
     val firstname: String,
     val comment: String?,
+    val created_at: String,
     val items: List<ItemsResponse>
 )
 
@@ -64,5 +67,8 @@ data class ItemsResponse(
     val total_qty: Int,
     val state: Int,
     val is_stock: Int,
-    val operation : Int,
+    val pivot : MovementPivotResponse,
+)
+data class MovementPivotResponse(
+    val operation: Int
 )

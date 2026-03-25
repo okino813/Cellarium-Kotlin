@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import java.util.Date
 
 /* Data class des items et de ses conteneurs associé */
 @Immutable
@@ -50,6 +51,7 @@ data class Movements(
     val id: Int,
     val firstname: String,
     val comment: String?,
+    val date: String,
     val items: List<Items>
 )
 

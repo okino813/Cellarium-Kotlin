@@ -57,7 +57,10 @@ fun AppUser(
                 onLogOut = onLogout,
                 onChangeMode = onChangeMode
             )
-            AppDestinationsAdmin.MOUVEMENT -> MovementAdmin()
+            AppDestinationsAdmin.MOUVEMENT -> MovementAdmin(
+                onLogOut = onLogout,
+                onChangeMode = onChangeMode
+            )
             AppDestinationsAdmin.ITEM -> ItemAdmin()
             AppDestinationsAdmin.CONTENANT -> ContenantAdmin()
             AppDestinationsAdmin.SOURCE -> SourceAdmin()
