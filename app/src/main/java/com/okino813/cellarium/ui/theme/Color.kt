@@ -10,11 +10,12 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val Orange = Color(0xFAAF00)
+val Orange = Color(0xFFA503)
+val FontOrange = Color(0xFAAF00)
 val FontVert = Color(0xFFD4EDDA)
 val FontRouge = Color(0xFFF8D7DA)
-val Rouge = Color(0xFF155724)
-val Vert = Color(0xFF721C24)
+val Vert = Color(0xFF155724)
+val Rouge = Color(0xFF721C24)
 
 val Black100 = Color.Black
 

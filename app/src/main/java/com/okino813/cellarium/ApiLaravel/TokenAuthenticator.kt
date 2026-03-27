@@ -19,6 +19,11 @@ class TokenAuthenticator(private val context: Context) : Authenticator {
             return null
         }
 
+        if (response.responseCount() >= 2) {
+            Log.e("TokenAuthenticator", "Trop de tentatives — abandon")
+            return null
+        }
+
         // Détermine quel token utiliser (admin ou user)
         val adminToken = TokenManager.getAdmin(context)
         val userToken = TokenManager.getUser(context)
@@ -83,5 +88,15 @@ class TokenAuthenticator(private val context: Context) : Authenticator {
         } else {
             null  // Déconnexion si refresh impossible
         }
+    }
+
+    private fun Response.responseCount(): Int {
+        var count = 1
+        var prior = this.priorResponse
+        while (prior != null) {
+            count++
+            prior = prior.priorResponse
+        }
+        return count
     }
 }

@@ -5,6 +5,8 @@ import com.okino813.cellarium.ApiLaravel.Admin.ContainResponse
 import com.okino813.cellarium.ApiLaravel.Admin.ItemResponse
 import com.okino813.cellarium.ApiLaravel.Admin.MovementResponse
 import com.okino813.cellarium.ApiLaravel.Admin.StatsResponse
+import com.okino813.cellarium.ApiLaravel.Admin.UpdateItemRequest
+import com.okino813.cellarium.ApiLaravel.Admin.UpdateResponse
 import com.okino813.cellarium.ApiLaravel.User.UserInfoResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -40,6 +42,9 @@ interface ApiService {
 
     @GET("admin/stats")
     suspend fun getStats(): Response<StatsResponse>
+
+    @POST("admin/item/update")
+    suspend fun updateItem(@Body body: UpdateItemRequest): Response<UpdateResponse>
 
     // User
     @GET("user/info")

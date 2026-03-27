@@ -160,7 +160,8 @@ fun LoginStateless(
                 Text("Mot de passe")
                 Input(
                     value = password,
-                    ValueChange = onPasswordChange
+                    ValueChange = onPasswordChange,
+                    isPassword = true
                 )
             }else{
                 Text("Firstname")

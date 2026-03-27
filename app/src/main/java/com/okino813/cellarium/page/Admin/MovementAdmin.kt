@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -79,7 +80,10 @@ fun MovementAdminStateless(
                 TitreH1("Historique des mouvements")
                 Spacer(modifier = Modifier.height(12.dp))
 
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
                     items(Value.movements) { movement ->
                         ElevatedCard(
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -87,7 +91,6 @@ fun MovementAdminStateless(
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-
                                 // Header — prénom + date
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -114,7 +117,7 @@ fun MovementAdminStateless(
                                 movement.items.forEach { item ->
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(vertical = 2.dp)
+                                        modifier = Modifier.padding(bottom = 10.dp)
                                     ) {
                                         // Badge opération
                                         val isPositive = item.operation > 0
@@ -146,7 +149,6 @@ fun MovementAdminStateless(
 
                                 // Commentaire
                                 if (!movement.comment.isNullOrEmpty()) {
-                                    Spacer(modifier = Modifier.height(10.dp))
                                     HorizontalDivider(thickness = 0.5.dp)
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(verticalAlignment = Alignment.Top) {

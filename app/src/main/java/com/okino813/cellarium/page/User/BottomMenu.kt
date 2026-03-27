@@ -1,5 +1,6 @@
 package com.okino813.cellarium.page.User
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,7 +31,9 @@ import com.okino813.cellarium.ui.theme.CellariumTheme
 @Composable
 fun AppUser(
     onLogout : () -> Unit,
-    onChangeMode: () -> Unit
+    onChangeMode: () -> Unit,
+    context: Context,
+    refreshTrigger: () -> Unit
 ) {
     var currentDestinationAdmin by rememberSaveable { mutableStateOf(AppDestinationsAdmin.HOME) }
 
@@ -61,7 +64,12 @@ fun AppUser(
                 onLogOut = onLogout,
                 onChangeMode = onChangeMode
             )
-            AppDestinationsAdmin.ITEM -> ItemAdmin()
+            AppDestinationsAdmin.ITEM -> ItemAdmin(
+                onLogOut = onLogout,
+                onChangeMode = onChangeMode,
+                context = context,
+                refreshTrigger = refreshTrigger
+            )
             AppDestinationsAdmin.CONTENANT -> ContenantAdmin()
             AppDestinationsAdmin.SOURCE -> SourceAdmin()
             else -> {

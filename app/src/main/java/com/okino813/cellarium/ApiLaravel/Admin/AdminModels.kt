@@ -1,5 +1,6 @@
 package com.okino813.cellarium.ApiLaravel.Admin
 
+import android.os.Message
 import java.util.Date
 
 data class AdminAllInfoResponse(
@@ -71,4 +72,19 @@ data class ItemsResponse(
 )
 data class MovementPivotResponse(
     val operation: Int
+)
+
+data class UpdateItemRequest(
+    val id: Int,
+    val name: String,
+    val is_stock: Boolean,
+    val total_qty: Int,
+    val state: Boolean,
+    val seuil: Int
+)
+
+
+data class UpdateResponse(
+    val status: Boolean,
+    val message: String?
 )

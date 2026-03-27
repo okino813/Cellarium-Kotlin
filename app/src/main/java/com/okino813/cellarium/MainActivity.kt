@@ -50,6 +50,9 @@ class MainActivity : ComponentActivity() {
             var isLoading by remember { mutableStateOf(false) }
             var errorMessage by remember { mutableStateOf("") }
 
+            var refreshTrigger by remember { mutableStateOf(0) }
+            var isFirstLoad by remember { mutableStateOf(true) }
+
             fun LogOutAdmin(){
                 sharedPref.edit().putBoolean("isConnectedAdmin", false).apply()
                 TokenManager.clearAdmin(context)
@@ -67,16 +70,17 @@ class MainActivity : ComponentActivity() {
             }
 
             // 👇 Se relance quand isConnectedAdmin ou isConnectedUser change
-            LaunchedEffect(isConnectedAdmin, isConnectedUser) {
+            LaunchedEffect(isConnectedAdmin, isConnectedUser, refreshTrigger) {
                 if (isConnectedAdmin && mode == "admin") {
-                    isLoading = true
+                    if(isFirstLoad) isLoading = true
                     try {
                         ApiAdmin.getInfo(context)
                         Value.nbr_ruptures = Value.items.count { it.total_qty <= it.seuil }
                     } catch (e: Exception) {
                         errorMessage = "Erreur de chargement : ${e.message}"
                     } finally {
-                        isLoading = false
+                            isLoading = false
+                            isFirstLoad = false  // 👈 plus jamais de loader après
                     }
                 }
                 if (isConnectedUser && mode == "user") {
@@ -162,10 +166,17 @@ class MainActivity : ComponentActivity() {
                             Text(errorMessage, color = Color.Red)
                         }
                     }
-                    isConnectedAdmin && mode == "admin" -> AppAdmin(onLogOut = {LogOutAdmin()}, onChangeMode = {ChangeMode()})
+                    isConnectedAdmin && mode == "admin" -> AppAdmin(
+                        onLogOut = {LogOutAdmin()},
+                        onChangeMode = {ChangeMode()},
+                        context = context,
+                        refreshTrigger = {refreshTrigger++}
+                    )
                     isConnectedUser && mode == "user" -> AppUser(
                         onLogout = {},
-                        onChangeMode = {}
+                        onChangeMode = {},
+                        context = context,
+                        refreshTrigger = {refreshTrigger++}
                     )
                     else -> {}
                 }

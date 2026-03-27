@@ -18,6 +18,12 @@ object ApiAdmin {
         return ApiClient.create(context).getStats()
     }
 
+    suspend fun updateItem(
+        context: Context, item: UpdateItemRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).updateItem(item)
+    }
+
     suspend fun getItems(context: Context) {
         val response = ApiClient.create(context).getItems()
         if (response.isSuccessful) {
