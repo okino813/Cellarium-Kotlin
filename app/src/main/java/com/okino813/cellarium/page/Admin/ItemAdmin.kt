@@ -115,9 +115,23 @@ fun ItemAdminStateless(
                 ) {
                     items(Value.items) { item ->
                         val is_zero = item.total_qty == 0
-                        val is_inf = item.total_qty < item.seuil && !is_zero
-                        val statusColor = if (is_zero) Color.Red else if (is_inf) Orange else Vert
-                        val statusLabel = if (is_zero) "Rupture" else if (is_inf) "Bas" else "OK"
+                        val is_inf = item.total_qty < item.seuil
+
+                        var statusColor: Color
+                        var statusLabel: String
+
+                        if(is_inf and !is_zero) {
+                            statusLabel = "Bas"
+                            statusColor = Orange
+                        }
+                        else if(is_zero){
+                            statusLabel = "Rupture"
+                            statusColor = Color.Red
+                        }
+                        else{
+                            statusLabel = "OK"
+                            statusColor = Vert
+                        }
 
                         ElevatedCard(
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -146,7 +160,6 @@ fun ItemAdminStateless(
                                         )
                                     }
                                 }
-
                                 // Stock + badge
                                 Column(
                                     horizontalAlignment = Alignment.End
