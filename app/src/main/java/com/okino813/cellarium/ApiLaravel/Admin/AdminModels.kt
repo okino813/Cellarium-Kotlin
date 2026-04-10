@@ -1,8 +1,5 @@
 package com.okino813.cellarium.ApiLaravel.Admin
 
-import android.os.Message
-import java.util.Date
-
 data class AdminAllInfoResponse(
     val items: List<String>
 )
@@ -11,6 +8,13 @@ data class StatsResponse(
     val items: Int,
     val ruptures: Int,
     val mouvements: Int
+)
+
+/* La class du getSources */
+data class SourceResponse(
+    val id: Int,
+    val name: String,
+    val firestation_id: Int
 )
 
 
@@ -81,6 +85,11 @@ data class UpdateItemRequest(
     val total_qty: Int,
     val state: Boolean,
     val seuil: Int
+)
+data class UpdateContainRequest(
+    val id: Int,
+    val name: String,
+    val source_id: Int?
 )
 
 

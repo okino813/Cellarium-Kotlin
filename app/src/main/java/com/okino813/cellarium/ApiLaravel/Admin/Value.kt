@@ -65,12 +65,23 @@ data class Items(
     val operation : Int,
 )
 
+/* --------------------------------------- */
+/* Data class des sources */
+@Immutable
+data class Sources(
+    val id: Int,
+    val name: String,
+    val firestationId: Int
+)
+
 object Value {
     val items = mutableStateListOf<Item>()
 
     var contains = mutableStateListOf<Contains>()
 
     var movements = mutableStateListOf<Movements>()
+
+    var sources = mutableStateListOf<Sources>()
     var nbr_items by mutableStateOf(0)
     var nbr_ruptures by mutableStateOf(0)
 }

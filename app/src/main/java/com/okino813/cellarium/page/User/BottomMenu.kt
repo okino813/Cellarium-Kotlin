@@ -70,7 +70,12 @@ fun AppUser(
                 context = context,
                 refreshTrigger = refreshTrigger
             )
-            AppDestinationsAdmin.CONTENANT -> ContenantAdmin()
+            AppDestinationsAdmin.CONTENANT -> ContenantAdmin(
+                onLogOut = onLogout,
+                onChangeMode = onChangeMode,
+                context = context,
+                refreshTrigger = refreshTrigger
+            )
             AppDestinationsAdmin.SOURCE -> SourceAdmin()
             else -> {
                 HomeAdmin(

@@ -4,7 +4,9 @@ import com.okino813.cellarium.ApiLaravel.Admin.AdminAllInfoResponse
 import com.okino813.cellarium.ApiLaravel.Admin.ContainResponse
 import com.okino813.cellarium.ApiLaravel.Admin.ItemResponse
 import com.okino813.cellarium.ApiLaravel.Admin.MovementResponse
+import com.okino813.cellarium.ApiLaravel.Admin.SourceResponse
 import com.okino813.cellarium.ApiLaravel.Admin.StatsResponse
+import com.okino813.cellarium.ApiLaravel.Admin.UpdateContainRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateItemRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateResponse
 import com.okino813.cellarium.ApiLaravel.User.UserInfoResponse
@@ -34,6 +36,9 @@ interface ApiService {
     @GET("admin/items")
     suspend fun getItems(): Response<List<ItemResponse>>
 
+    @GET("admin/sources")
+    suspend fun getSources(): Response<List<SourceResponse>>
+
     @GET("admin/contains")
     suspend fun getContains(): Response<List<ContainResponse>>
 
@@ -45,6 +50,11 @@ interface ApiService {
 
     @POST("admin/item/update")
     suspend fun updateItem(@Body body: UpdateItemRequest): Response<UpdateResponse>
+
+    @POST("admin/contain/update")
+    suspend fun updateContain(@Body body: UpdateContainRequest): Response<UpdateResponse>
+
+
 
     // User
     @GET("user/info")

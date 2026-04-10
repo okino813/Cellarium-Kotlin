@@ -66,7 +66,12 @@ fun AppAdmin(
                 refreshTrigger = refreshTrigger,
                 context = context
             )
-            AppDestinationsAdmin.CONTENANT -> ContenantAdmin()
+            AppDestinationsAdmin.CONTENANT -> ContenantAdmin(
+                onLogOut = onLogOut,
+                onChangeMode = onChangeMode,
+                refreshTrigger = refreshTrigger,
+                context = context
+            )
             AppDestinationsAdmin.SOURCE -> SourceAdmin()
             else -> {HomeAdmin(
                 onLogOut = onLogOut,

@@ -6,12 +6,13 @@ import com.okino813.cellarium.ApiLaravel.ApiClient
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
-
+import com.okino813.cellarium.ApiLaravel.Admin.Sources
 object ApiAdmin {
     suspend fun getInfo(context: Context) {
         getItems(context)
         getContains(context)
         getMovements(context)
+        getSources(context)
     }
 
     suspend fun getStats(context: Context): Response<StatsResponse> {
@@ -22,6 +23,12 @@ object ApiAdmin {
         context: Context, item: UpdateItemRequest
     ): Response<UpdateResponse> {
         return ApiClient.create(context).updateItem(item)
+    }
+
+    suspend fun updateContain(
+        context: Context, contain: UpdateContainRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).updateContain(contain)
     }
 
     suspend fun getItems(context: Context) {
@@ -123,6 +130,28 @@ object ApiAdmin {
             }
         }else{
             Log.e("Movements", response.body().toString())
+        }
+    }
+
+
+    suspend fun getSources(context: Context) {
+        val response = ApiClient.create(context).getSources()
+        if (response.isSuccessful) {
+            response.body()?.let { sources ->
+                Log.d("ApiAdmin", "Sources reçus : ${sources.size}")
+                Value.sources.clear()
+                Value.sources.addAll(
+                    sources.map { source ->
+                        Sources(
+                            id = source.id,
+                            name = source.name,
+                            firestationId = source.firestation_id
+                        )
+                    }
+                )
+            }
+        }else{
+            Log.e("Sources", response.body().toString())
         }
     }
 
