@@ -25,6 +25,18 @@ object ApiAdmin {
         return ApiClient.create(context).updateItem(item)
     }
 
+    suspend fun storeItem(
+        context: Context, item: StoreItemRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).storeItem(item)
+    }
+
+    suspend fun deleteItem(
+        context: Context, item: DeleteItemRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).deleteItem(item)
+    }
+
     suspend fun updateContain(
         context: Context, contain: UpdateContainRequest
     ): Response<UpdateResponse> {

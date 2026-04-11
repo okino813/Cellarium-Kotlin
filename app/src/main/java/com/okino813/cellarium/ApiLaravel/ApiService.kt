@@ -2,10 +2,12 @@ package com.okino813.cellarium.ApiLaravel
 
 import com.okino813.cellarium.ApiLaravel.Admin.AdminAllInfoResponse
 import com.okino813.cellarium.ApiLaravel.Admin.ContainResponse
+import com.okino813.cellarium.ApiLaravel.Admin.DeleteItemRequest
 import com.okino813.cellarium.ApiLaravel.Admin.ItemResponse
 import com.okino813.cellarium.ApiLaravel.Admin.MovementResponse
 import com.okino813.cellarium.ApiLaravel.Admin.SourceResponse
 import com.okino813.cellarium.ApiLaravel.Admin.StatsResponse
+import com.okino813.cellarium.ApiLaravel.Admin.StoreItemRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateContainRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateItemRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateResponse
@@ -50,6 +52,12 @@ interface ApiService {
 
     @POST("admin/item/update")
     suspend fun updateItem(@Body body: UpdateItemRequest): Response<UpdateResponse>
+
+    @POST("admin/item/store")
+    suspend fun storeItem(@Body body: StoreItemRequest): Response<UpdateResponse>
+
+    @POST("admin/item/destroy")
+    suspend fun deleteItem(@Body body: DeleteItemRequest): Response<UpdateResponse>
 
     @POST("admin/contain/update")
     suspend fun updateContain(@Body body: UpdateContainRequest): Response<UpdateResponse>

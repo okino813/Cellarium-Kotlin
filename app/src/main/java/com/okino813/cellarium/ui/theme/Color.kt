@@ -17,6 +17,8 @@ val FontRouge = Color(0xFFF8D7DA)
 val Vert = Color(0xFF155724)
 val Rouge = Color(0xFF721C24)
 
+val DeleteRouge = Color(0xFFC50517)
+
 val Black100 = Color.Black
 
 val Grey40 = Color(0x949494)
