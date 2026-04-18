@@ -13,6 +13,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
@@ -25,7 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.okino813.cellarium.R
 import com.okino813.cellarium.ui.theme.CellariumTheme
 import kotlin.math.exp
@@ -64,11 +67,23 @@ fun BandeauTopStateless(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ){
-            Text("Cellarium Admin")
+            Text(
+                text = "Cellarium Admin",
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 20.sp
+                )
+            )
 
             Box{
                 IconButton(
-                    onClick = { expanded = true }
+                    onClick = { expanded = true },
+                    colors = IconButtonColors(
+                        contentColor = Color.White,
+                        containerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor = Color.Transparent
+                    )
                 ){
                     Icon(
                         painter = painterResource(id = R.drawable.ic_profile),

@@ -43,6 +43,18 @@ object ApiAdmin {
         return ApiClient.create(context).updateContain(contain)
     }
 
+    suspend fun updateContainQty(
+        context: Context, data: UpdateContainQtyRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).updateContainQty(data)
+    }
+
+    suspend fun addItemToContain(
+        context: Context, data: addItemToContainRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).addItemToContain(data)
+    }
+
     suspend fun getItems(context: Context) {
         val response = ApiClient.create(context).getItems()
         if (response.isSuccessful) {

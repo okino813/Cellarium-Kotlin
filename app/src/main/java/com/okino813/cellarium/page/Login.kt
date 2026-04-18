@@ -144,7 +144,8 @@ fun LoginStateless(
             Text("Code caserne")
             Input(
                 value = code,
-                ValueChange = onCodeChange
+                ValueChange = onCodeChange,
+                isNumber = true
             )
 
             Spacer(Modifier.padding(8.dp))
@@ -154,6 +155,7 @@ fun LoginStateless(
                 Input(
                     value = email,
                     ValueChange = onEmailChange,
+                    isEmail = true
                 )
                 Spacer(Modifier.padding(8.dp))
 

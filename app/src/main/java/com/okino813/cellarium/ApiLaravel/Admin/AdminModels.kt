@@ -105,6 +105,20 @@ data class UpdateContainRequest(
     val source_id: Int?
 )
 
+data class UpdateContainQtyRequest(
+    val idContain: Int,
+    val idItem: Int,
+    val qty: Int
+)
+
+data class addItemToContainRequest(
+    val idContain: Int,
+    val idItem: Int,
+    val qty: Int
+)
+
+
+
 
 data class UpdateResponse(
     val status: Boolean,

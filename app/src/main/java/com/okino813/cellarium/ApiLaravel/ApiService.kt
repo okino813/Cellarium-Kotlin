@@ -8,9 +8,11 @@ import com.okino813.cellarium.ApiLaravel.Admin.MovementResponse
 import com.okino813.cellarium.ApiLaravel.Admin.SourceResponse
 import com.okino813.cellarium.ApiLaravel.Admin.StatsResponse
 import com.okino813.cellarium.ApiLaravel.Admin.StoreItemRequest
+import com.okino813.cellarium.ApiLaravel.Admin.UpdateContainQtyRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateContainRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateItemRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateResponse
+import com.okino813.cellarium.ApiLaravel.Admin.addItemToContainRequest
 import com.okino813.cellarium.ApiLaravel.User.UserInfoResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -61,6 +63,12 @@ interface ApiService {
 
     @POST("admin/contain/update")
     suspend fun updateContain(@Body body: UpdateContainRequest): Response<UpdateResponse>
+
+    @POST("admin/contain/qty/update")
+    suspend fun updateContainQty(@Body body: UpdateContainQtyRequest): Response<UpdateResponse>
+
+    @POST("admin/contain/add/item")
+    suspend fun addItemToContain(@Body body: addItemToContainRequest): Response<UpdateResponse>
 
 
 

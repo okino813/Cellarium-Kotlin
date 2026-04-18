@@ -36,10 +36,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import com.okino813.cellarium.ui.theme.FontRouge
-import com.okino813.cellarium.ui.theme.FontVert
+import com.okino813.cellarium.ui.theme.DeleteRouge
 import com.okino813.cellarium.ui.theme.Rouge
+import com.okino813.cellarium.ui.theme.RougeColor
 import com.okino813.cellarium.ui.theme.Vert
+import com.okino813.cellarium.ui.theme.VertColor
 
 @Composable
 fun MovementAdmin(
@@ -85,6 +86,7 @@ fun MovementAdminStateless(
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
                     items(Value.movements) { movement ->
+
                         ElevatedCard(
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                             modifier = Modifier.fillMaxWidth(),
@@ -115,18 +117,29 @@ fun MovementAdminStateless(
 
                                 // Liste des items
                                 movement.items.forEach { item ->
+
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier.padding(bottom = 10.dp)
                                     ) {
                                         // Badge opération
                                         val isPositive = item.operation > 0
+
+                                        val badgeBackground = if (isPositive)
+                                            MaterialTheme.colorScheme.tertiaryContainer  // vert adaptatif
+                                        else
+                                            MaterialTheme.colorScheme.errorContainer     // rouge adaptatif
+
+                                        val badgeText = if (isPositive)
+                                            MaterialTheme.colorScheme.onTertiaryContainer
+                                        else
+                                            MaterialTheme.colorScheme.onErrorContainer
+
                                         Box(
                                             contentAlignment = Alignment.Center,
                                             modifier = Modifier
                                                 .background(
-                                                    color = if (isPositive)
-                                                        FontVert else FontRouge,
+                                                    color = badgeBackground,
                                                     shape = RoundedCornerShape(6.dp)
                                                 )
                                                 .padding(horizontal = 8.dp, vertical = 2.dp)
@@ -135,7 +148,7 @@ fun MovementAdminStateless(
                                                 text = if (isPositive) "+${item.operation}" else "${item.operation}",
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = if (isPositive) Vert else Rouge
+                                                color = badgeText
                                             )
                                         }
                                         Spacer(modifier = Modifier.width(8.dp))
