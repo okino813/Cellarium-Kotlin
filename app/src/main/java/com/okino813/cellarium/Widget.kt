@@ -75,6 +75,7 @@ fun InputNumber(
     BasicTextField(
         value = value,
         onValueChange = {ValueChange(it)},
+        readOnly = true,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         textStyle = TextStyle(

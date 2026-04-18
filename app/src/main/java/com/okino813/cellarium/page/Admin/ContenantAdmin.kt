@@ -68,6 +68,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.window.DialogProperties
 import com.okino813.cellarium.ApiLaravel.Admin.Containing
 import com.okino813.cellarium.ApiLaravel.Admin.Item
@@ -190,46 +193,13 @@ fun EditContenantAdmin(
     onChangeMode: () -> Unit,
     onRefresh: () -> Unit
 ) {
+    // Modifcation du conteant
     val scope = rememberCoroutineScope()
     var id by remember { mutableStateOf(contain.id) }
     var name by remember { mutableStateOf(contain.name) }
     var source by remember { mutableStateOf(contain.sourcing) }
-
     var errorMessage by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-
-    var expanded by remember { mutableStateOf(false) }
-    var expandedAddAsso by remember { mutableStateOf(false) }
-    val options = Value.sources
-
-    var qtyToAdd by remember { mutableStateOf(3) }
-
-    var listItemOutContain = ArrayList<Item>()
-
-    Value.items.forEach { item ->
-        var isInContain = false
-
-        item.containings.forEach { contain ->
-            if (contain.id == id) {
-                isInContain = true
-            }
-        }
-
-        if(!isInContain){
-            listItemOutContain.add(item)
-        }
-    }
-
-    var selectedItemToAdd by remember {
-        mutableStateOf<Item?>(listItemOutContain.firstOrNull())
-    }
-
-    var selectedOption by remember {
-        mutableStateOf(options.find { it.id == source?.id } ?: options[0])
-    }
-
-    var showDialog by remember { mutableStateOf(false) }
-
     fun updateContain() {
         scope.launch {
             isLoading = true
@@ -256,6 +226,15 @@ fun EditContenantAdmin(
         }
     }
 
+    // Modificaiton de la source du contenant
+    var expanded by remember { mutableStateOf(false) }
+    var expandedAddAsso by remember { mutableStateOf(false) }
+    val options = Value.sources
+    var selectedOption by remember {
+        mutableStateOf(options.find { it.id == source?.id } ?: options[0])
+    }
+
+    // Modification du changement de la quantité affecté de l'item au contenant
     fun updateQtyAffect(
         idContain: Int,
         idItem: Int,
@@ -274,16 +253,20 @@ fun EditContenantAdmin(
                 )
                 if (response.isSuccessful) {
                     val itemIndex = Value.items.indexOfFirst { it.id == idItem }
-                    if (itemIndex != -1) {
-                        val item = Value.items[itemIndex]
-                        val updatedContainings = item.containings.map { containing ->
-                            if (containing.id == idContain) {
-                                containing.copy(qty_affect = qty)
-                            } else {
-                                containing
+                    if(qty > 0) {
+                        if (itemIndex != -1) {
+                            val item = Value.items[itemIndex]
+                            val updatedContainings = item.containings.map { containing ->
+                                if (containing.id == idContain) {
+                                    containing.copy(qty_affect = qty)
+                                } else {
+                                    containing
+                                }
                             }
+                            Value.items[itemIndex] = item.copy(containings = updatedContainings)
                         }
-                        Value.items[itemIndex] = item.copy(containings = updatedContainings)
+                    }else{
+                        Value.items.removeAt(itemIndex)
                     }
                 } else {
                     errorMessage = "Erreur de mise à jour"
@@ -297,6 +280,24 @@ fun EditContenantAdmin(
         Log.i("UPDATEQTY", "Je change les valeurs suivante :\n Le contain : ${idContain} \n L'item : ${idItem} \n La quantité affecté : ${qty}")
     }
 
+    // Ajout d'assiciation d'item au contenant
+    var qtyToAdd by remember { mutableStateOf(3) }
+    var listItemOutContain = ArrayList<Item>()
+    Value.items.forEach { item ->
+        var isInContain = false
+        item.containings.forEach { contain ->
+            if (contain.id == id) {
+                isInContain = true
+            }
+        }
+        if(!isInContain){
+            listItemOutContain.add(item)
+        }
+    }
+    var selectedItemToAdd by remember {
+        mutableStateOf<Item?>(listItemOutContain.firstOrNull())
+    }
+    var showDialog by remember { mutableStateOf(false) }
     fun storeItemContaining(
         contain: Contains,
         idItem: Int,
@@ -338,6 +339,11 @@ fun EditContenantAdmin(
         Log.i("UPDATEQTY", "Je change les valeurs suivante :\n Le contain : ${contain.id} \n L'item : ${idItem} \n La quantité affecté : ${qty}")
     }
 
+    // Supression d'association d'item au contenant
+    var itemToDelete by remember { mutableStateOf(Value.items.firstOrNull()?.id ?: -1) }
+    var showDialogDelete by remember { mutableStateOf(false) }
+
+
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = modifier.padding(innerPadding)) {
             if(showDialog){
@@ -361,14 +367,14 @@ fun EditContenantAdmin(
 
                         }) {
                             // set button text
-                            Text("Confirm")
+                            Text("Confirmer")
                         }
                     },
                     // configure dismiss button
                     dismissButton = {
                         TextButton(onClick = { showDialog = false }) {
                             // set button text
-                            Text("Dismiss")
+                            Text("Annuler")
                         }
                     },
                     // set title text
@@ -421,6 +427,76 @@ fun EditContenantAdmin(
                                     qtyToAdd = it.toIntOrNull() ?: 0
                                 },
                                 isNumber = true
+                            )
+                        }
+                    },
+                    // set padding for contents inside the box
+                    modifier = Modifier.padding(16.dp),
+                    // define box shape
+                    shape = RoundedCornerShape(16.dp),
+                    // set box background color
+                    containerColor = Color.White,
+                    // set icon color
+                    iconContentColor = Color.Red,
+                    // set title text color
+                    titleContentColor = Color.Black,
+                    // set text color
+                    textContentColor = Color.DarkGray,
+                    // set elevation
+                    tonalElevation = 8.dp,
+                    // set properties
+                    properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = false)
+                )
+            }
+            else if(showDialogDelete){
+                // Demander la confirmation de supression de l'association
+                var item = Value.items[itemToDelete]
+                AlertDialog(
+                    // set dismiss request
+                    onDismissRequest = { showDialogDelete = false },
+                    // configure confirm button
+                    confirmButton = {
+                        Button(onClick = {
+                            // On suprime l'association
+                            updateQtyAffect(
+                                idContain = contain.id,
+                                idItem = itemToDelete,
+                                qty = 0
+                            )
+                            Toast.makeText(context, "Association supprimé", Toast.LENGTH_SHORT).show()
+                            showDialogDelete = false
+
+                        }) {
+                            // set button text
+                            Text("Confirmer")
+                        }
+                    },
+                    // configure dismiss button
+                    dismissButton = {
+                        TextButton(onClick = { showDialogDelete = false }) {
+                            // set button text
+                            Text("Annuler")
+                        }
+                    },
+                    // set title text
+                    title = {
+                        Text(text = "Supression de l'association", color = Color.Black)
+                    },
+                    // set description text
+                    text = {
+                        Column() {
+                            Text(
+                                buildAnnotatedString {
+                                    append("Souhaitez-vous supprimer l'association de l'item ")
+                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(item.name)
+                                    }
+                                    append(", du contenant ")
+                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(contain.name)
+                                    }
+                                    append(" ?")
+                                }
                             )
                         }
                     },
@@ -597,16 +673,21 @@ fun EditContenantAdmin(
                                                 ButtonQty(
                                                     onClick = {
                                                         var qtyInt = qty.toIntOrNull() ?: 0 // Evite le crash la valeur est null
-                                                        qtyInt = qtyInt + 1
-                                                        qty = qtyInt.toString()
-                                                        Log.d("updateQty", "Envoi idContain=${contain.id}, idItem=${item.id}, qty=$qtyInt")
-                                                        updateQtyAffect(
-                                                            idContain = contain.id,
-                                                            idItem = item.id,
-                                                            qty = qtyInt
-                                                        )
+                                                        if(qtyInt > 1) {
+                                                            qtyInt = qtyInt - 1
+                                                            qty = qtyInt.toString()
+                                                            Log.d("updateQty", "Envoi idContain=${contain.id}, idItem=${item.id}, qty=$qtyInt")
+                                                            updateQtyAffect(
+                                                                idContain = contain.id,
+                                                                idItem = item.id,
+                                                                qty = qtyInt
+                                                            )
+                                                        }else{
+                                                            itemToDelete = item.id ?: -1
+                                                            showDialogDelete = true
+                                                        }
                                                     },
-                                                    text = "+"
+                                                    text = "-"
                                                 )
                                                 Box(modifier = Modifier.width(1.dp).fillMaxHeight().background(Color.Gray))
 
@@ -621,19 +702,18 @@ fun EditContenantAdmin(
                                                 ButtonQty(
                                                     onClick = {
                                                         var qtyInt = qty.toIntOrNull() ?: 0 // Evite le crash la valeur est null
-                                                        if(qtyInt > 0) {
-                                                            qtyInt = qtyInt - 1
-                                                            qty = qtyInt.toString()
-                                                            Log.d("updateQty", "Envoi idContain=${contain.id}, idItem=${item.id}, qty=$qtyInt")
-                                                            updateQtyAffect(
-                                                                idContain = contain.id,
-                                                                idItem = item.id,
-                                                                qty = qtyInt
-                                                            )
-                                                        }
+                                                        qtyInt = qtyInt + 1
+                                                        qty = qtyInt.toString()
+                                                        Log.d("updateQty", "Envoi idContain=${contain.id}, idItem=${item.id}, qty=$qtyInt")
+                                                        updateQtyAffect(
+                                                            idContain = contain.id,
+                                                            idItem = item.id,
+                                                            qty = qtyInt
+                                                        )
                                                     },
-                                                    text = "-"
+                                                    text = "+"
                                                 )
+
                                             }
                                         }
                                     }
