@@ -5,10 +5,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -59,26 +60,33 @@ import com.okino813.cellarium.SectionCard
 import com.okino813.cellarium.TitreH1
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.window.DialogProperties
 import com.okino813.cellarium.ApiLaravel.Admin.Containing
+import com.okino813.cellarium.ApiLaravel.Admin.DeleteContainRequest
+import com.okino813.cellarium.ApiLaravel.Admin.DeleteItemRequest
 import com.okino813.cellarium.ApiLaravel.Admin.Item
+import com.okino813.cellarium.ApiLaravel.Admin.Sources
+import com.okino813.cellarium.ApiLaravel.Admin.StoreContainRequest
 import com.okino813.cellarium.ApiLaravel.Admin.UpdateContainQtyRequest
 import com.okino813.cellarium.ApiLaravel.Admin.addItemToContainRequest
 import com.okino813.cellarium.ButtonQty
 import com.okino813.cellarium.InputNumber
-import com.okino813.cellarium.R
+import com.okino813.cellarium.SwitchRow
 
 @Composable
 fun ContenantAdmin(
@@ -89,6 +97,39 @@ fun ContenantAdmin(
     context: Context
 ){
     var selectedContain by remember { mutableStateOf<Contains?>(null) }
+    var createMode by remember { mutableStateOf<Boolean>(false) }
+
+    val scope = rememberCoroutineScope()
+
+    var errorMessage by remember { mutableStateOf("") }
+
+    Voir pourquoi le refresh ne se fais pas après avoir delete le contenant
+    fun deleteContain(contain: Contains){
+        scope.launch {
+            try {
+                val response = ApiAdmin.deleteContain(
+                    context,
+                    DeleteContainRequest(
+                        idContain = contain.id,
+                    )
+                )
+                Toast.makeText(context, response.body()?.message, Toast.LENGTH_SHORT).show()
+
+                if (response.isSuccessful) {
+                    refreshTrigger()
+                    selectedContain = null
+                    Toast.makeText(context, "Contenant supprimé", Toast.LENGTH_LONG).show()
+                } else {
+                    errorMessage = "Erreur lors de la supression"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Erreur réseau : ${e.message}"
+            }
+
+        }
+
+
+    }
 
     if (selectedContain != null) {
         // Affiche la page de modification
@@ -102,24 +143,320 @@ fun ContenantAdmin(
             onRefresh = refreshTrigger
 
         )
-    } else {
+    }else if(createMode){
+        // A modifié ici
+        AddContainAdmin(
+            onBack = {
+                selectedContain = null
+                createMode = false
+            },
+            modifier = modifier,
+            onLogOut = onLogOut,
+            onChangeMode = onChangeMode,
+            context = context,
+            onRefresh = refreshTrigger
+
+        )
+    }
+    else {
         ContenantAdminStateless(
             modifier = modifier,
             onLogOut = onLogOut,
             onChangeMode = onChangeMode,
-            onSelectContain = { selectedContain = it}
+            onSelectContain = { selectedContain = it},
+            onCreateModeChange =  {createMode = it},
+            onDelete = {
+                deleteContain(it)
+            }
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddContainAdmin(
+    context: Context,
+    onBack: () -> Unit,
+    modifier: Modifier,
+    onLogOut: () -> Unit,
+    onChangeMode: () -> Unit,
+    onRefresh: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    var name by remember { mutableStateOf("") }
+    var source by remember { mutableStateOf<Sources?>(null) }
+    var errorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+
+    var expanded by remember { mutableStateOf(false) }
+    var expandedAddSource by remember { mutableStateOf(false) }
+    val options = Value.sources
+    var selectedOption by remember {
+        mutableStateOf(options.find { it.id == source?.id } ?: options[0])
+    }
+
+    fun storeContain() {
+        scope.launch {
+            isLoading = true
+            try {
+                val response = ApiAdmin.storeContain(
+                    context,
+                    StoreContainRequest(
+                        name = name,
+                        idSource = source?.id ?: -1
+                    )
+                )
+                if (response.isSuccessful) {
+                    onRefresh()
+                    onBack()
+                    Toast.makeText(context, "Contenant ajouter avec succès !", Toast.LENGTH_LONG).show()
+                } else {
+                    errorMessage = "Erreur de l'ajout"
+                    Log.e("CONTAINADD", response.message())
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                errorMessage = "Erreur réseau : ${e.message}"
+                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Column(modifier = modifier.padding(innerPadding)) {
+            BandeauTop(
+                modifier = modifier,
+                onLogOut = onLogOut,
+                onChangeMode = onChangeMode
+            )
+
+            // Header avec bouton retour
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Retour",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            }
+
+            HorizontalDivider(thickness = 0.5.dp)
+
+            // Formulaire scrollable
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    // Nom
+                    SectionCard {
+                        Text(
+                            "Nom du contenant",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Input(value = name, ValueChange = { name = it })
+
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            "Source associé",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { expanded = !expanded }
+                        ) {
+                            TextField(
+                                value = selectedOption.name,
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                options.forEach { selectionOption ->
+                                    DropdownMenuItem(
+                                        text = { Text(selectionOption.name) },
+                                        onClick = {
+                                            selectedOption = selectionOption
+                                            source = Sources(
+                                                id = selectionOption.id,
+                                                name = selectionOption.name,
+                                                firestationId = selectionOption.firestationId
+                                            )
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Erreur
+                if (errorMessage.isNotEmpty()) {
+                    item {
+                        Text(
+                            errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 13.sp
+                        )
+                    }
+                }
+            }
+
+            // Bouton sauvegarder fixe en bas
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Button(
+                    onClick = { storeContain() },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text("Sauvegarder", fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContenantAdminStateless(
     modifier: Modifier,
     onLogOut: () -> Unit,
     onChangeMode: () -> Unit,
     onSelectContain: (Contains) -> Unit,
+    onCreateModeChange: (Boolean) -> Unit,
+    onDelete: (Contains) -> Unit
 ) {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    var selectedContain by remember { mutableStateOf<Contains?>(null) }
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    // BottomSheet options
+    if (showBottomSheet && selectedContain != null) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    selectedContain!!.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                // Option modifier
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            showBottomSheet = false
+                            onSelectContain(selectedContain!!)
+                        }
+                        .padding(vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text("Modifier", fontSize = 15.sp)
+                }
+
+                HorizontalDivider(thickness = 0.5.dp)
+
+                // Option supprimer
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            showBottomSheet = false
+                            onDelete(selectedContain!!)
+                        }
+                        .padding(vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        "Supprimer",
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onCreateModeChange(true)
+                },
+            ) {
+                Icon(Icons.Filled.Add, "Ajouter un contenant")
+            }
+        }
+    ) { innerPadding ->
         Column(modifier = modifier.padding(innerPadding)) {
             BandeauTop(
                 modifier = modifier,
@@ -137,8 +474,15 @@ fun ContenantAdminStateless(
                     items(Value.contains) { contain ->
                         ElevatedCard(
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                            onClick = { onSelectContain(contain) },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .combinedClickable(
+                                    onClick = { onSelectContain(contain) },
+                                    onLongClick = {
+                                        selectedContain = contain
+                                        showBottomSheet = true
+                                    }
+                                ),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Row(

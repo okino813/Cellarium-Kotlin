@@ -91,12 +91,21 @@ data class DeleteItemRequest(
     val id: Int
 )
 
+data class DeleteContainRequest(
+    val idContain: Int
+)
+
 data class StoreItemRequest(
     val name: String,
     val is_stock: Boolean,
     val total_qty: Int,
     val state: Boolean,
     val seuil: Int
+)
+
+data class StoreContainRequest(
+    val name: String,
+    val idSource: Int,
 )
 
 data class UpdateContainRequest(

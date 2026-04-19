@@ -31,11 +31,24 @@ object ApiAdmin {
         return ApiClient.create(context).storeItem(item)
     }
 
+    suspend fun storeContain(
+        context: Context, contain: StoreContainRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).storeContain(contain)
+    }
+
     suspend fun deleteItem(
         context: Context, item: DeleteItemRequest
     ): Response<UpdateResponse> {
         return ApiClient.create(context).deleteItem(item)
     }
+
+    suspend fun deleteContain(
+        context: Context, contain: DeleteContainRequest
+    ): Response<UpdateResponse> {
+        return ApiClient.create(context).deleteContain(contain)
+    }
+
 
     suspend fun updateContain(
         context: Context, contain: UpdateContainRequest
